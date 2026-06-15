@@ -30,10 +30,10 @@ function Primer(
     is_forward::Bool=true,
     tail_length::Int=3,
     max_samples::Int=1000,
-    tm_conf_int::Real=0.8,
+    tm_conf_int=0.8,
     tm_conds=:pcr,
-    dg_temp::Real=37.0,
-    slack::Real=0.0,
+    dg_temp=37.0,
+    slack=0.0,
     descr="Primer for $(nseqs(msa)) seq MSA at positions $interval"
 )
     _cons = consensus_degen(msa, interval; slack=slack)
@@ -99,10 +99,16 @@ function construct_primers(
     tm_conf_int::Real=0.2,
     tm_conds=:pcr,
     dg_temp::Real=mean(tm_range)
-)::Vector{Primer}
+)::Vector{Primer{DegenOlig}}
     0 ≤ slack < 1 || throw(ArgumentError("slack must be in [0,1)"))
+    0 ≤ min_msadepth ≤ 1 || throw(ArgumentError("min_msadepth must be in [0,1]"))
+    1 ≤ max_olig_variants || throw(ArgumentError("max_olig_variants must be at least 1"))
+    2 ≤ minimum(length_range) || throw(ArgumentError("lower bound of length_range must be ≥ 2nt"))
+    0 ≤ tail_length ≤ minimum(length_range) || throw(ArgumentError("tail_length must be [0, length_range.start]"))
+    0 ≤ gc_range.start ≤ gc_range.stop ≤ 100 || throw(ArgumentError("gc_range must be in [0, 100]"))
+    0 ≤ tm_range.start ≤ tm_range.stop ≤ 100 || throw(ArgumentError("tm_range must be in [0, 100]"))
     
-    primers = Primer[]
+    primers = Primer{DegenOlig}[]
     L = length(msa)
     base_count = get_base_count(msa)
     prog = Progress(length(length_range); desc="Constructing... ", color=:white, barlen=10)
@@ -157,7 +163,7 @@ function construct_primers(
             Tm = _ext_tm(cons; max_samples=max_samples, conf_int=tm_conf_int, conditions=tm_conds)
             (tm_range.stop < first(Tm.conf) || last(Tm.conf) < tm_range.start) && continue
             
-            primer = Primer(msa, interval, is_forward, cons, tail_len, Tm, dg_val, gc, slack)
+            primer = Primer{DegenOlig}(msa, interval, is_forward, cons, tail_len, Tm, dg_val, gc, slack)
 
             lock(l)
             try
@@ -173,14 +179,13 @@ function construct_primers(
 end
 
 function best_pairs(
-    forwards::Vector{Primer},
-    reverses::Vector{Primer};
+    forwards::Vector{<:Primer},
+    reverses::Vector{<:Primer};
     amplicon_len::UnitRange{Int}=0:9999,
     max_tm_diff::Real=4.0
-)::Vector{Pair{Primer}}
-    pairs = Pair{Primer}[]
-
-    isempty(forwards) || isempty(reverses) && return pairs
+)::Vector{Pair{Primer{DegenOlig}}}
+    pairs = Pair{Primer{DegenOlig}}[]
+    (isempty(forwards) || isempty(reverses)) && return pairs
 
     all(p -> p.is_forward, forwards)  || throw(ArgumentError("All forwards must be forward primers"))
     all(p -> !p.is_forward, reverses) || throw(ArgumentError("All reverses must be reverse primers"))
@@ -211,6 +216,21 @@ function best_pairs(
     return pairs
 end
 
+function Base.convert(::Type{Primer{T1}}, p::Primer{T2}) where {T1, T2}
+    T2 === T1 && return p
+    return Primer(
+        p.msa, p.pos, p.is_forward,
+        convert(T1, p.consensus),
+        p.tail_length, p.tm, p.dg, p.gc, p.slack
+    )
+end
+
+function Base.convert(::Type{Pair{Primer{T3}, Primer{T3}}}, p::Pair{Primer{T1}, Primer{T2}}) where {T1, T2, T3}
+    T1 === T3 && T2 === T3 && return p
+    return Pair(convert(Primer{T3}, p.first), convert(Primer{T3}, p.second))
+end
+
+Base.convert(::Type{Pair{Primer}}, p::Pair{<:AbstractPrimer, <:AbstractPrimer}) = p
 
 include("show_primers.jl")
 
