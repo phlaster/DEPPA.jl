@@ -4,11 +4,11 @@ using BLAST_jll
 using FastaIO
 using ProgressMeter
 
-using AlignedOligs.Alignments
-using AlignedOligs.Oligs  
-using AlignedOligs.Primers
+using DEPPA.Alignments
+using DEPPA.Oligs  
+using DEPPA.Primers
 
-import AlignedOligs.Primers: construct_primers
+import DEPPA.Primers: construct_primers
 
 
 function construct_primers(

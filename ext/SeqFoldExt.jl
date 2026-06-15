@@ -4,8 +4,8 @@ using Statistics
 
 using SeqFold
 
-using AlignedOligs.Oligs
-using AlignedOligs.Primers
+using DEPPA.Oligs
+using DEPPA.Primers
 
 
 SeqFold.revcomp(olig::T) where T <: AbstractOlig = T(SeqFold.revcomp(String(olig); table=Oligs.DNA_COMP_TABLE_DEG))

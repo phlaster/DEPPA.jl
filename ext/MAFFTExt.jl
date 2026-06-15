@@ -3,7 +3,7 @@ module MAFFTExt
 using MAFFT_jll
 using FastaIO
 
-import AlignedOligs.Alignments: _align!
+import DEPPA.Alignments: _align!
 
 function _align!(fasta_content::Vector{NTuple{2, String}})
     buffer = IOBuffer()

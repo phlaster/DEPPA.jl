@@ -1,12 +1,12 @@
-# AlignedOligs
+# DEPPA
 
-[![Build Status](https://github.com/phlaster/AlignedOligs.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/phlaster/AlignedOligs.jl/actions/workflows/CI.yml?query=branch%3Amaster)
+[![Build Status](https://github.com/phlaster/DEPPA.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/phlaster/DEPPA.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 # Quickstart
 
 ```julia
-using AlignedOligs, MAFFT_jll
+using DEPPA, MAFFT_jll
 
 nal = "ActR.fasta"
 

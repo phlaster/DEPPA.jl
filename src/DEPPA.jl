@@ -1,13 +1,13 @@
-module AlignedOligs
+module DEPPA
 
 """
-    Package AlignedOligs
+    Package DEPPA
 
 Nucleic acid oligomers aligning and PCR primers construction
 
-$(isnothing(get(ENV, "CI", nothing)) ? ("\nPackage local path: $(pathof(AlignedOligs))") : "") 
+$(isnothing(get(ENV, "CI", nothing)) ? ("\nPackage local path: $(pathof(DEPPA))") : "") 
 """
-AlignedOligs
+DEPPA
 
 export Oligs, Primers, Alignments
 

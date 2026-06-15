@@ -1,16 +1,16 @@
-using AlignedOligs
+using DEPPA
 using Test
 using Aqua
 using JET
 using Random
 using MAFFT_jll
 
-@testset "AlignedOligs.jl" begin
+@testset "DEPPA.jl" begin
     @testset "Code quality (Aqua.jl)" begin
-        Aqua.test_all(AlignedOligs)
+        Aqua.test_all(DEPPA)
     end
     @testset "Code linting (JET.jl)" begin
-        JET.test_package(AlignedOligs; target_defined_modules = true)
+        JET.test_package(DEPPA; target_defined_modules = true)
     end
     
     @testset "Oligs" begin

@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = AlignedOligs
+CurrentModule = DEPPA
 ```
 
-# AlignedOligs
+# DEPPA
 
-Documentation for [AlignedOligs](https://github.com/phlaster/AlignedOligs.jl).
+Documentation for [DEPPA](https://github.com/phlaster/DEPPA.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [AlignedOligs]
+Modules = [DEPPA]
 ```

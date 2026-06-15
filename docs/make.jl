@@ -1,12 +1,12 @@
-using AlignedOligs
+using DEPPA
 using Documenter
 
-DocMeta.setdocmeta!(AlignedOligs, :DocTestSetup, :(using AlignedOligs); recursive=true)
+DocMeta.setdocmeta!(DEPPA, :DocTestSetup, :(using DEPPA); recursive=true)
 
 makedocs(;
-    modules=[AlignedOligs],
+    modules=[DEPPA],
     authors="phlaster <phlaster@users.noreply.github.com>",
-    sitename="AlignedOligs.jl",
+    sitename="DEPPA.jl",
     format=Documenter.HTML(;
         edit_link="master",
         assets=String[],

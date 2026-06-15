@@ -3,19 +3,19 @@ using Aqua
 using JET
 using Random
 
-using AlignedOligs
-using AlignedOligs.Oligs
-using AlignedOligs.Alignments
-using AlignedOligs.Primers
+using DEPPA
+using DEPPA.Oligs
+using DEPPA.Alignments
+using DEPPA.Primers
 
 Random.seed!(42)
 
-@testset verbose=true failfast=true "AlignedOligs.jl"  begin
+@testset verbose=true failfast=true "DEPPA.jl"  begin
     @testset "Code quality (Aqua.jl)" begin
-        Aqua.test_all(AlignedOligs)
+        Aqua.test_all(DEPPA)
     end
     @testset "Code linting (JET.jl)" begin
-        JET.test_package(AlignedOligs; target_defined_modules = true)
+        JET.test_package(DEPPA; target_modules=(DEPPA,))
     end
     
     @testset "Oligs" include("test_oligs.jl")
