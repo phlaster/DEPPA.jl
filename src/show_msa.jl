@@ -76,9 +76,9 @@ function Base.show(io::IO, msa::AbstractMSA)
     
     msa_all_rows = _returnrows(msa)
     for dj in 1:length(displayed_cols_range)
-        pos_counts = get_base_count(msa_all_rows, dj)
+        pos_counts = vec(get_base_count(msa_all_rows, dj))
         major_nuc = "ACGT"[argmax(pos_counts)]
-        depth = msadepth(msa_all_rows, dj)
+        depth = only(msadepth(msa_all_rows, dj))
         bar_index = clamp(floor(Int, depth * 8) + 1, 1, 8)
         bar_char = histbars[bar_index]
         color = get(BASE_COLORS, major_nuc, :normal)
