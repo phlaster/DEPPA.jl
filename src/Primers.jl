@@ -10,8 +10,17 @@ using ..Alignments
 using ProgressMeter
 using Statistics
 
+"""
+    AbstractPrimer{T<:Union{Oligo,DegenOligo}}
+Abstract supertype for PCR primers.
+"""
 abstract type AbstractPrimer{T<:Union{Oligo,DegenOligo}} end
 
+"""
+    Primer{T} <: AbstractPrimer{T}
+A concrete type representing a PCR primer. Stores the consensus sequence, its position in the MSA,
+and thermodynamic properties (Tm, dG, GC content).
+"""
 struct Primer{T} <: AbstractPrimer{T}
     msa::AbstractMSA
     pos::UnitRange{Int}
@@ -24,6 +33,10 @@ struct Primer{T} <: AbstractPrimer{T}
     slack::Float64
 end
 
+"""
+    Primer(msa::AbstractMSA, interval::UnitRange{Int}; kwargs...)
+Constructs a `Primer` object for a given interval in the MSA, calculating its thermodynamic properties.
+"""
 function Primer(
     msa::AbstractMSA,
     interval::UnitRange{Int};
@@ -82,6 +95,27 @@ Oligos.hasgaps(::AbstractPrimer) = false
 Oligos.nondegens(primer::AbstractPrimer) = nondegens(primer.consensus)
 Oligos.oligo_range(primer::AbstractPrimer) = primer.pos
 
+"""
+    construct_primers(msa::AbstractMSA; kwargs...) -> Vector{Primer{DegenOligo}}
+Constructs a list of candidate primers from an MSA based on thermodynamic and conservation filters.
+
+# Keyword Arguments
+- `is_forward::Bool=true`: Design forward (`true`) or reverse (`false`) primers.
+- `length_range::UnitRange{Int}=17:23`: Allowed primer lengths.
+- `tail_length::Int=3`: Length of the 3' tail region.
+- `head_degen_pos::Int=5`: Maximum allowed degenerate positions in the 5' head region.
+- `tail_degen_pos::Int=0`: Maximum allowed degenerate positions in the 3' tail region.
+- `slack::Real=0.05`: Minimum frequency threshold for including a base in the degenerate consensus.
+- `gc_range::UnitRange{Int}=40:60`: Allowed GC content percentage range.
+- `tm_range::UnitRange{Int}=55:60`: Allowed melting temperature (Tm) range.
+- `min_delta_g::Real=-5.0`: Minimum allowed free energy (dG) at `dg_temp`.
+- `min_msadepth::Float64=0.75`: Minimum sequence depth (coverage) required across the primer region.
+- `max_oligo_variants::Int=100`: Maximum number of unique sequences the degenerate primer can represent.
+- `max_samples::Int=5000`: Number of samples for Monte Carlo estimation of Tm and dG.
+- `tm_conf_int::Real=0.2`: Confidence interval for Tm.
+- `tm_conds=:pcr`: Thermodynamic conditions for Tm calculation.
+- `dg_temp::Real=mean(tm_range)`: Temperature for dG calculation.
+"""
 function construct_primers(
     msa::AbstractMSA;
     is_forward::Bool=true,
@@ -182,6 +216,14 @@ function construct_primers(
     return primers
 end
 
+"""
+    best_pairs(forwards::Vector{<:Primer}, reverses::Vector{<:Primer}; amplicon_len::UnitRange{Int}=0:9999, max_tm_diff::Real=4.0) -> Vector{Pair{Primer{DegenOligo}}}
+Finds the best matching pairs of forward and reverse primers.
+
+# Keyword Arguments
+- `amplicon_len::UnitRange{Int}=0:9999`: Allowed range for the total amplicon length.
+- `max_tm_diff::Real=4.0`: Maximum allowed difference in mean Tm between forward and reverse primers.
+"""
 function best_pairs(
     forwards::Vector{<:Primer},
     reverses::Vector{<:Primer};

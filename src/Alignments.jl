@@ -51,14 +51,26 @@ function _bootstrap_base_counts(
     return base_count
 end
 
-
+"""
+    AbstractMSA
+Abstract supertype for Multiple Sequence Alignments.
+"""
 abstract type AbstractMSA end
 
+"""
+    MSA <: AbstractMSA
+A concrete Multiple Sequence Alignment type. Stores sequences and precomputed base frequencies.
+"""
 struct MSA <: AbstractMSA
     seqs::Vector{<:AbstractGapped}
     base_count::Matrix{Float64}
     bootstrap::Int
 
+    """
+    MSA(seqs::Vector{<:AbstractString}; bootstrap::Int=0, seed=nothing)
+    Constructs an MSA from a vector of equal-length strings.
+    If `bootstrap > 0`, computes base frequencies using bootstrap resampling.
+    """
     function MSA(seqs::Vector{<:AbstractString}; bootstrap::Int=0, seed=nothing)
         bootstrap >= 0 || throw(ArgumentError("bootstrap must be non-negative"))
         isnothing(seed) || Random.seed!(seed)
@@ -74,6 +86,10 @@ struct MSA <: AbstractMSA
     end
 end
 
+"""
+    MSAView <: AbstractMSA
+A lightweight view into an `MSA`, representing a submatrix of rows and columns.
+"""
 struct MSAView <: AbstractMSA
     parent::AbstractMSA
     rows::UnitRange{Int}
@@ -83,8 +99,17 @@ end
 _returnrows(m::AbstractMSA) = m
 _returnrows(m::MSAView) = MSAView(m.parent, 1:height(m.parent), m.cols)
 
+"""
+    root(msa::AbstractMSA) -> MSA
+Returns the underlying root `MSA` object, resolving any `MSAView` layers.
+"""
 root(msa::MSA) = msa
 root(msav::MSAView) = root(msav.parent)
+
+"""
+    bval(msa::AbstractMSA) -> Int
+Returns the number of bootstrap iterations used to compute base frequencies.
+"""
 bval(msa::MSA) = msa.bootstrap
 bval(msav::MSAView) = root(msav).bootstrap
 
@@ -95,6 +120,12 @@ function _align!(args...; kwargs...)
           "and load it with `using MAFFT_jll` before calling MSA with `mafft=true`.")
 end
 
+"""
+    MSA(predicate::Function, fasta::AbstractString; mafft::Bool=false, bootstrap::Int=0, seed=nothing)
+Constructs an MSA from a FASTA file. 
+- `predicate`: A function that takes the sequence description and returns `true` to include the sequence.
+- `mafft`: If `true`, aligns the sequences using MAFFT (requires `MAFFT_jll` to be loaded).
+"""
 function MSA(predicate::Function, fasta::AbstractString; mafft::Bool=false, bootstrap::Int=0, seed=nothing)
     fasta_content = Tuple{String, String}[]
     FastaReader(fasta) do fr
@@ -169,13 +200,26 @@ function Base.checkbounds(msa::AbstractMSA, rows::UnitRange{<:Integer}, cols::Un
 end
 function Base.checkbounds(::AbstractMSA, ::Colon, ::Colon) end
 
+"""
+    nseqs(msa::AbstractMSA) -> Int
+Returns the number of sequences (rows) in the alignment.
+"""
 nseqs(msa::MSA) = length(msa.seqs)
 nseqs(v::MSAView) = length(v.rows)
 
 Base.length(msa::MSA) = size(msa.base_count, 2)
 Base.length(v::MSAView) = length(v.cols)
 
+"""
+    width(msa::AbstractMSA) -> Int
+Returns the number of columns (alignment length) in the MSA.
+"""
 width(msa::AbstractMSA) = length(msa)
+
+"""
+    height(msa::AbstractMSA) -> Int
+Returns the number of sequences (rows) in the MSA. Alias for [`nseqs`](@ref).
+"""
 height(msa::AbstractMSA) = nseqs(msa)
 
 Base.ndims(::AbstractMSA) = 2
