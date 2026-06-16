@@ -100,8 +100,12 @@ function Base.show(io::IO, msa::AbstractMSA)
         println(io)
     end
 
-    has_desc && print(io, " "^desc_width)
-    
+    gap_below_seqnames = fill(' ', desc_width)
+    if n_display_seqs < n_sequences && length(gap_below_seqnames) ≥ 3
+        gap_below_seqnames[1:3] .= '.'
+    end
+    has_desc && print(io, join(gap_below_seqnames))
+
     num_line_chars = fill(' ', length(displayed_cols_range))
     
     start_num_str = string(first(abs_cols))
@@ -135,9 +139,6 @@ function Base.show(io::IO, msa::AbstractMSA)
         if abs_pos % 1000 == 0 && num_line_chars[rel_idx] == '*'
             num_line_chars[rel_idx] = '#'
         end
-    end
-    if n_display_seqs < n_sequences && length(num_line_chars) ≥ 3
-        num_line_chars[1:3] .= '.'
     end
     println(io, String(num_line_chars))
 end
