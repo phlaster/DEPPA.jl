@@ -136,8 +136,10 @@ function Base.show(io::IO, msa::AbstractMSA)
             num_line_chars[rel_idx] = '#'
         end
     end
+    if n_display_seqs < n_sequences && length(num_line_chars) ≥ 3
+        num_line_chars[1:3] .= '.'
+    end
     println(io, String(num_line_chars))
-    n_display_seqs < n_sequences ? println(io, "...") : println(io)
 end
 
 function _is_full_height(msa::AbstractMSA)
