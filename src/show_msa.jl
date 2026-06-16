@@ -19,6 +19,29 @@ const BASE_COLORS = Dict{Char, Symbol}(
 
 const histbars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
 
+const MSA_SHOW_STYLE = Ref(:polymorf)
+
+"""
+    setMSAShowStyle!(style::Symbol)
+
+Sets the global display style for the MSA viewer. 
+
+Valid options are:
+- `:bw` (black and white, consensus with `.` for matches)
+- `:polymorf` (colored polymorphic characters, `.` for consensus matches)
+- `:allcolors` (fully colored sequences and depth histogram bars, default)
+"""
+function setMSAShowStyle!(style::Symbol)
+    if style in (:bw, :polymorf, :allcolors)
+        MSA_SHOW_STYLE[] = style
+    else
+        throw(ArgumentError(
+            "Invalid MSA show style: :$style. " *
+            "Valid options are :bw, :polymorf, or :allcolors."
+        ))
+    end
+end
+
 function Base.show(io::IO, msa::AbstractMSA)
     n_sequences = nseqs(msa)
     if n_sequences == 0
@@ -74,38 +97,99 @@ function Base.show(io::IO, msa::AbstractMSA)
     println(io, ":")
     has_desc && print(io, " "^desc_width)
     
-    msa_all_rows = _returnrows(msa)
-    for dj in 1:length(displayed_cols_range)
-        pos_counts = vec(get_base_count(msa_all_rows, dj))
-        major_nuc = "ACGT"[argmax(pos_counts)]
-        depth = only(msadepth(msa_all_rows, dj))
-        bar_index = clamp(floor(Int, depth * 8) + 1, 1, 8)
-        bar_char = histbars[bar_index]
-        color = get(BASE_COLORS, major_nuc, :normal)
-        printstyled(io, bar_char; color=color)
+    style = MSA_SHOW_STYLE[]
+    
+    # Precompute consensus characters for :bw and :polymorf styles
+    consensus_chars = Vector{Char}(undef, length(displayed_cols_range))
+    if style != :allcolors
+        for dj in 1:length(displayed_cols_range)
+            counts = Dict{Char, Int}()
+            for i in 1:n_sequences
+                c = getsequence(msa, i, dj)
+                counts[c] = get(counts, c, 0) + 1
+            end
+            
+            max_count = -1
+            maj_c = '-'
+            for (c, count) in counts
+                if count > max_count
+                    max_count = count
+                    maj_c = c
+                end
+            end
+            consensus_chars[dj] = maj_c
+        end
+    end
+
+    # Print the header line (histbars or consensus)
+    if style == :allcolors
+        msa_all_rows = _returnrows(msa)
+        for dj in 1:length(displayed_cols_range)
+            pos_counts = vec(get_base_count(msa_all_rows, dj))
+            major_nuc = "ACGT"[argmax(pos_counts)]
+            depth = only(msadepth(msa_all_rows, dj))
+            bar_index = clamp(floor(Int, depth * 8) + 1, 1, 8)
+            bar_char = histbars[bar_index]
+            color = get(BASE_COLORS, major_nuc, :normal)
+            printstyled(io, bar_char; color=color)
+        end
+    else
+        for dj in 1:length(displayed_cols_range)
+            c = consensus_chars[dj]
+            if style == :polymorf
+                color = get(BASE_COLORS, c, :normal)
+                printstyled(io, c; color=color, reverse=true)
+            else
+                print(io, c)
+            end
+        end
     end
     println(io)
+
+    # Print the sequences
     for i in 1:n_display_seqs
         if has_desc
             print(io, padded_descs[i], " >")
         end
         for dj in 1:length(displayed_cols_range)
             c = getsequence(msa, i, dj)
-            col = get(BASE_COLORS, c, :normal)
-            printstyled(io, c; color=col, reverse=true)
+            if style == :allcolors
+                col = get(BASE_COLORS, c, :normal)
+                printstyled(io, c; color=col, reverse=true)
+            elseif style == :bw
+                if c == consensus_chars[dj]
+                    print(io, '.')
+                else
+                    print(io, c)
+                end
+            else # :polymorf
+                if c == consensus_chars[dj]
+                    print(io, '.')
+                else
+                    col = get(BASE_COLORS, c, :normal)
+                    printstyled(io, c; color=col)
+                end
+            end
         end
+        
         if needs_width_ellipsis
-            printstyled(io, "..."; color=:light_black, reverse=true)
+            if style == :allcolors || style == :polymorf
+                printstyled(io, "⋅⋅⋅"; color=:light_black, reverse=true)
+            else
+                print(io, "⋅⋅⋅")
+            end
         end
         println(io)
     end
 
+    # Print the gap below sequence names if truncated
     gap_below_seqnames = fill(' ', desc_width)
     if n_display_seqs < n_sequences && length(gap_below_seqnames) ≥ 3
         gap_below_seqnames[1:3] .= '.'
     end
     has_desc && print(io, join(gap_below_seqnames))
 
+    # Print the position number line
     num_line_chars = fill(' ', length(displayed_cols_range))
     
     start_num_str = string(first(abs_cols))
@@ -140,10 +224,5 @@ function Base.show(io::IO, msa::AbstractMSA)
             num_line_chars[rel_idx] = '#'
         end
     end
-    println(io, String(num_line_chars))
-end
-
-function _is_full_height(msa::AbstractMSA)
-    depth = msadepth(msa, 1)
-    return all(d -> d == depth, msadepth(msa, 1:length(msa)))
+    print(io, String(num_line_chars))
 end

@@ -10,6 +10,7 @@ export AbstractMSA, MSA, MSAView
 export nseqs, width, height, getsequence, get_base_count
 export msadepth, msadet, root, bval
 export consensus_major, consensus_degen, dry_msa, nucleotide_diversity
+export setMSAShowStyle!
 
 function _bootstrap_base_counts(
     seqs::Vector{<:AbstractString}, 
@@ -94,6 +95,17 @@ struct MSAView <: AbstractMSA
     parent::AbstractMSA
     rows::UnitRange{Int}
     cols::UnitRange{Int}
+end
+
+"""
+    MSA(msav::MSAView; bootstrap::Int=0, seed=nothing)
+
+Constructs a new concrete `MSA` by materializing the sliced rows and columns 
+from an `MSAView` into a standalone alignment.
+"""
+function MSA(msav::MSAView; bootstrap::Int=0, seed=nothing)
+    seqs = [getsequence(msav, i) for i in 1:nseqs(msav)]
+    return MSA(seqs; bootstrap=bootstrap, seed=seed)
 end
 
 _returnrows(m::AbstractMSA) = m
