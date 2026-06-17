@@ -406,6 +406,7 @@ const EMPTY_GAPPED = GappedOligo(DegenOligo(), "")
 GappedOligo() = EMPTY_GAPPED
 GappedOligo(oligo::GappedOligo) = oligo
 GappedOligo(seq::AbstractString) = GappedOligo(seq, description(seq))
+DegenOligo(go::GappedOligo) = DegenOligo(String(go), description(go))
 
 
 
