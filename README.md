@@ -6,6 +6,7 @@
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![codecov](https://codecov.io/gh/phlaster/DePPA.jl/graph/badge.svg?token=DCH8TMMXOA)](https://codecov.io/gh/phlaster/DePPA.jl)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 ## Introduction
 
 `DePPA.jl` is a high-performance pure Julia package for multiple sequence alignment (MSA) analysis and PCR primer design. The package is specifically engineered to handle degenerate (IUPAC) nucleotide sequences and provides rigorous statistical calculations for the thermodynamic properties of primer pools.
