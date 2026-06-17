@@ -17,11 +17,6 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "Manual" => [
-            "manual/oligos.md",
-            "manual/alignments.md",
-            "manual/primers.md",
-        ],
         "API Reference" => "api.md",
     ],
 )
