@@ -234,6 +234,5 @@ function Base.show(io::IO, msa::AbstractMSA)
         end
     end
     
-    needs_width_ellipsis && print(io, " ")
     print(io, String(num_line_chars))
 end
