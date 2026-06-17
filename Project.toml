@@ -1,7 +1,7 @@
 name = "DEPPA"
 uuid = "47e0b4c3-c02b-4df9-862c-39042bcbb8d1"
 authors = ["phlaster <phlaster@users.noreply.github.com>"]
-version = "0.0.1"
+version = "0.1.0"
 
 [deps]
 FastaIO = "a0c94c4b-ebed-5953-b5fc-82fe598ac79f"
@@ -25,6 +25,6 @@ MAFFT_jll = "7.525.0"
 NCBIBlast = "0.2.0"
 ProgressMeter = "1.11.0"
 SeqFold = "0.4.0"
-Random = "1.10"
-Statistics = "1.10"
-julia = "1.10"
+Random = "1.11"
+Statistics = "1.11"
+julia = "1.11"

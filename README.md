@@ -1,7 +1,10 @@
 # <div align="center"> <img src="docs/src/assets/logo.png" alt="DEPPA.jl: DEgenerate Primer Pair Assembler" width="500"></div><div align="center">Degenerate Primer Pair Assembler</div>
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://phlaster.github.io/DEPPA.jl/stable/)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://phlaster.github.io/DEPPA.jl/dev/)
 [![Build Status](https://github.com/phlaster/DEPPA.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/phlaster/DEPPA.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ## Introduction
 
 `DEPPA.jl` is a high-performance pure Julia package for multiple sequence alignment (MSA) analysis and PCR primer design. The package is specifically engineered to handle degenerate (IUPAC) nucleotide sequences and provides rigorous statistical calculations for the thermodynamic properties of primer pools.
@@ -164,7 +167,7 @@ In your Python script or REPL:
 Python 3.13.13 (main, Apr 14 2026, 14:28:56) [Clang 22.1.3 ] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> from juliacall import Main as jl
->>> jl.seval("""using Pkg; Pkg.add(url="https://github.com/phlaster/DEPPA.jl#dev"); Pkg.add("SeqFold")""")
+>>> jl.seval("""using Pkg; Pkg.add(url="https://github.com/phlaster/DEPPA.jl"); Pkg.add("SeqFold")""")
 >>> jl.seval("using DEPPA.Oligos, SeqFold")
 # Define convenient wrapper
 >>> jl.seval('calc_tm(seq::String) = tm(DegenOligo(seq))')
