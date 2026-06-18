@@ -45,12 +45,12 @@ To use the core alignment and sequence features, install `DePPA.jl`:
 julia> ]
 
 pkg> add DePPA
-pkg> add MAFFT_jll # in-place multiple sequence alignment requires the engine
-pkg> add SeqFold # enable thermodynamic calculations for primer design
+pkg> add MAFFT_jll # MSA backend
+pkg> add SeqFold   # thermodynamic calculations backend
 
 julia> using DePPA.Alignments, DePPA.Primers
 julia> using SeqFold, MAFFT_jll
-julia> setMSAShowStyle!(:bw); # monochrome REPL output theme, also try `:polymorf` or `:allcolors`
+julia> setMSAShowStyle!(:bw); # monochrome REPL output theme, try `:polymorf`, `:allcolors`
 ```
 
 ## Basic Usage
@@ -169,7 +169,7 @@ In your Python script or REPL:
 Python 3.13.13 (main, Apr 14 2026, 14:28:56) [Clang 22.1.3 ] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> from juliacall import Main as jl
->>> jl.seval("""using Pkg; Pkg.add(url="https://github.com/phlaster/DePPA.jl"); Pkg.add("SeqFold")""")
+>>> jl.seval("""using Pkg; Pkg.add("DePPA"); Pkg.add("SeqFold")""")
 >>> jl.seval("using DePPA.Oligos, SeqFold")
 # Define convenient wrapper
 >>> jl.seval('calc_tm(seq::String) = tm(DegenOligo(seq))')
@@ -188,7 +188,7 @@ If you use `DePPA.jl` in your research, please cite:
 ```bibtex
 @misc{DePPA.jl,
   author       = {A.D. Bezlepsky},
-  title        = {{DePPA.jl: DEgenerate Primer Pair Assembler}},
+  title        = {{DePPA.jl: Degenerate Primer Pair Assembler}},
   year         = {2026},
   publisher    = {GitHub},
   journal      = {GitHub repository},

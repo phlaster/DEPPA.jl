@@ -23,7 +23,7 @@ abstract type AbstractPrimer{T<:Union{Oligo,DegenOligo}} end
     Primer{T} <: AbstractPrimer{T}
 
 Represent a concrete PCR primer. Store the consensus sequence, its position in the MSA,
-and thermodynamic properties (Tm, dG, GC content).
+and thermodynamic properties (Tm, ΔG, GC content).
 
 See also [`AbstractPrimer`](@ref), [`construct_primers`](@ref).
 """
@@ -49,10 +49,10 @@ Construct a `Primer` object for a given interval in the MSA, calculating its the
 - `interval::UnitRange{Int}`: The position range of the primer in the MSA.
 - `is_forward::Bool=true`: Design a forward (`true`) or reverse (`false`) primer.
 - `tail_length::Int=3`: Length of the 3' tail region.
-- `max_samples::Int=1000`: Number of samples for Monte Carlo estimation of Tm and dG.
+- `max_samples::Int=1000`: Number of samples for Monte Carlo estimation of Tm and ΔG.
 - `tm_conf_int=0.8`: Confidence interval for Tm.
 - `tm_conds=:pcr`: Thermodynamic conditions for Tm calculation.
-- `dg_temp=37.0`: Temperature for dG calculation.
+- `dg_temp=37.0`: Temperature for ΔG calculation.
 - `slack=0.0`: Minimum frequency threshold for including a base in the degenerate consensus.
 - `descr`: Description string for the primer.
 
@@ -76,9 +76,9 @@ function Primer(
     underlying_oligo = DegenOligo(String(gapped_cons), string(descr))
     
     Tm = _ext_tm(underlying_oligo; max_samples=max_samples, conf_int=tm_conf_int, conditions=tm_conds)
-    dG = _ext_dg(underlying_oligo; max_samples=max_samples, temp=dg_temp)
+    delta_G = _ext_dg(underlying_oligo; max_samples=max_samples, temp=dg_temp)
     GC = _ext_gc_content(underlying_oligo)
-    Primer(msa, interval, is_forward, underlying_oligo, tail_length, Tm, dG, GC, slack)
+    Primer(msa, interval, is_forward, underlying_oligo, tail_length, Tm, delta_G, GC, slack)
 end
 
 # These are overloaded in ext/SeqFoldExt.jl to load SeqFold.jl library dynamically
@@ -131,13 +131,13 @@ Construct a list of candidate primers from an MSA based on thermodynamic and con
 - `slack::Real=0.05`: Minimum frequency threshold for including a base in the degenerate consensus.
 - `gc_range::UnitRange{Int}=40:60`: Allowed GC content percentage range.
 - `tm_range::UnitRange{Int}=55:60`: Allowed melting temperature (Tm) range.
-- `min_delta_g::Real=-5.0`: Minimum allowed free energy (dG) at `dg_temp`.
+- `min_delta_g::Real=-5.0`: Minimum allowed free energy (ΔG) at `dg_temp`.
 - `min_msadepth::Float64=0.75`: Minimum sequence depth (coverage) required across the primer region.
 - `max_oligo_variants::Int=100`: Maximum number of unique sequences the degenerate primer can represent.
-- `max_samples::Int=5000`: Number of samples for Monte Carlo estimation of Tm and dG.
+- `max_samples::Int=5000`: Number of samples for Monte Carlo estimation of Tm and ΔG.
 - `tm_conf_int::Real=0.2`: Confidence interval for Tm.
 - `tm_conds=:pcr`: Thermodynamic conditions for Tm calculation.
-- `dg_temp::Real=mean(tm_range)`: Temperature for dG calculation.
+- `dg_temp::Real=mean(tm_range)`: Temperature for ΔG calculation.
 
 # Returns
 - `Vector{Primer{DegenOligo}}`: A list of valid candidate primers.
@@ -245,7 +245,10 @@ function construct_primers(
 end
 
 """
-    best_pairs(forwards::Vector{<:Primer}, reverses::Vector{<:Primer}; amplicon_len::UnitRange{Int}=0:9999, max_tm_diff::Real=4.0) -> Vector{Pair{Primer{DegenOligo}}}
+    best_pairs(forwards::Vector{<:Primer}, reverses::Vector{<:Primer};
+        amplicon_len::UnitRange{Int}=0:9999,
+        max_tm_diff::Real=4.0
+    ) -> Vector{Pair{Primer{DegenOligo}}}
 
 Find the best matching pairs of forward and reverse primers.
 

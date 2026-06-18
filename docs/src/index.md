@@ -1,6 +1,6 @@
 # DePPA.jl
 
-**DE**generate **P**rimer **P**air **A**ssembler
+**D**egenerate **P**rimer **P**air **A**ssembler
 
 `DePPA.jl` is a high-performance pure Julia package for multiple sequence alignment (MSA) analysis and PCR primer design. The package is specifically engineered to handle degenerate (IUPAC) nucleotide sequences and provides rigorous statistical calculations for the thermodynamic properties of primer pools.
 
@@ -26,7 +26,7 @@ For alignment and thermodynamic calculations, you also need to load the optional
 Pkg.add("MAFFT_jll") # in-place multiple sequence alignment engine
 Pkg.add("SeqFold")   # thermodynamic calculations for primer design
 
-using DePPA, MAFFT_jll, SeqFold
+using DePPA.Alignments, DePPA.Primers, MAFFT_jll, SeqFold
 ```
 
 ## Quick Start

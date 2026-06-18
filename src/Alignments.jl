@@ -139,7 +139,7 @@ end
 Construct an MSA from a FASTA file.
 
 # Arguments
-- `predicate::Function`: A function that takes the sequence description and returns `true` to include the sequence.
+- `predicate::Function`: A `::Bool`-output filtering function that is applied to sequence descriptions.
 - `fasta::AbstractString`: Path to the FASTA file.
 - `mafft::Bool=false`: If `true`, align the sequences using MAFFT (requires `MAFFT_jll` package to be loaded).
 - `bootstrap::Int=0`: Number of bootstrap iterations for base frequencies.
@@ -179,22 +179,19 @@ end
 
 Construct an `MSA` from a FASTA file, including all sequences.
 
-This is a convenience method that delegates to the predicate-based constructor with a filter that always returns `true`.
-
 # Arguments
 - `fasta::AbstractString`: Path to the FASTA file.
-- `kwargs...`: Keyword arguments passed to the underlying `MSA(predicate, fasta; kwargs...)` constructor (e.g., `mafft::Bool`, `bootstrap::Int`, `seed`).
+- `kwargs...`: Keyword arguments passed to the underlying prredicate-based method.
 
 # Returns
 - `MSA`: A new `MSA` object containing all sequences from the file.
-
 """
 MSA(fasta::AbstractString; kwargs...) = MSA(x->true, fasta; kwargs...)
 
 """
     MSA(msav::MSAView; bootstrap::Int=0, seed=nothing)
 
-Construct a new concrete `MSA` by materializing the sliced rows and columns from an `MSAView` into a standalone alignment.
+Construct a new concrete `MSA` by materializing the `MSAView` into a standalone alignment.
 
 # Arguments
 - `msav::MSAView`: The MSA view to materialize.
@@ -405,7 +402,7 @@ end
     msadet(msa::AbstractMSA, interval::UnitRange{Int})
     msadet(msa::AbstractMSA)
 
-Calculate sequence determinacy (entropy inverse) at positions. Determinacy is the maximum base frequency normalized by total coverage.
+Calculate sequence determinacy at positions. Determinacy is the maximum base frequency normalized by total coverage.
 
 # Arguments
 - `msa::AbstractMSA`: The MSA.
@@ -433,14 +430,14 @@ end
 
 """
     consensus_major(msa::AbstractMSA, pos::Int)
-    consensus_major(msa::AbstractMSA, interval::UnitRange{Int}=1:width(msa))
+    consensus_major(msa::AbstractMSA, interval::UnitRange{Int})
 
 Generate a majority-rule consensus sequence using simple majority rule, ignoring gap characters.
 
 # Arguments
 - `msa::AbstractMSA`: The MSA.
 - `pos::Int`: Single position.
-- `interval::UnitRange{Int}=1:width(msa)`: Range of positions.
+- `interval::UnitRange{Int}`: Range of positions.
 
 # Returns
 - `Char` for a single position (most common base).
@@ -463,14 +460,14 @@ end
 
 """
     consensus_degen(msa::AbstractMSA, pos::Int; slack::Real=0.0)
-    consensus_degen(msa::AbstractMSA, interval::UnitRange{Int}=1:width(msa); slack::Real=0.0)
+    consensus_degen(msa::AbstractMSA, interval::UnitRange{Int}; slack::Real=0.0)
 
 Generate a degenerate consensus sequence allowing ambiguity. Bases with frequency > `slack` are included in the degeneracy.
 
 # Arguments
 - `msa::AbstractMSA`: The MSA.
 - `pos::Int`: Single position.
-- `interval::UnitRange{Int}=1:width(msa)`: Range of positions.
+- `interval::UnitRange{Int}`: Range of positions.
 - `slack::Real=0.0`: Minimum frequency threshold for inclusion.
 
 # Returns
